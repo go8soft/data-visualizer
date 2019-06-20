@@ -1,0 +1,79 @@
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', { packages: ['corechart', 'bar'] })
+      google.charts.setOnLoadCallback(drawStacked)
+
+      var charts = []
+      var defaultChannelsNumber = 2
+      var options = {
+        isStacked: true,
+        hAxis: {
+          textPosition: 'none'
+        },
+        vAxis: {
+          title: 'Range 0 - 10',
+          viewWindow: {
+            min: 0,
+            max: 10
+          }
+        },
+        explorer: {
+          axis: 'horizontal',
+          keepInBounds: true
+        }
+      }
+
+      function drawStacked() {
+        for (var i = 0; i < defaultChannelsNumber; i++) {
+          $("#charts-holder").append('<div id="channel-' + i + '"></div>')
+          charts[i] = {
+            options: options,
+            data: new google.visualization.DataTable(),
+            chart: {}
+          }
+          charts[i]['data'].addColumn('number', 'Numbers')
+          charts[i]['data'].addColumn('number', 'Value')
+          charts[i]['title'] = 'Random numbers generator channel #' + (i + 1)
+          charts[i]['options']['title'] = charts[i]['title']
+          charts[i]['chart'] = new google.visualization.ColumnChart(document.getElementById('channel-' + i))
+          charts[i]['chart'].draw(charts[i]['data'], charts[i]['options'])
+        }
+      }
+
+      var isStarted = false
+      var signalNumber = 0
+      setInterval(function(){
+        if (!isStarted) return
+        signalNumber++
+        charts.forEach(function(chart, i) {
+          charts[i]['data'].addRow([signalNumber, getRandomInt(11)])
+          charts[i]['options']['title'] = charts[i]['title']
+          charts[i]['chart'].draw(charts[i]['data'], charts[i]['options'])
+        })
+      }, 1000)
+
+      function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max))
+      }
+
+      $(document).ready(function() {
+        $("#start").click(function() {
+          isStarted = true
+        })
+
+        $("#stop").click(function() {
+          isStarted = false
+        })
+      })
+    </script>
+  </head>
+
+  <body>
+    <input type="button" id="start" value="Start">
+    <input type="button" id="stop" value="Stop">
+    <div id="charts-holder"></div>
+  </body>
+</html>
